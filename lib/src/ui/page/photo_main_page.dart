@@ -35,13 +35,21 @@ class PhotoMainPage extends StatefulWidget {
   _PhotoMainPageState createState() => _PhotoMainPageState();
 }
 
-class _PhotoMainPageState extends State<PhotoMainPage>
-    with SelectedProvider, GalleryListProvider {
+class _PhotoMainPageState extends State<PhotoMainPage> with SelectedProvider, AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   Options get options => widget.options;
 
   I18nProvider get i18nProvider => PhotoPickerProvider.of(context).provider;
+
   AssetProvider get assetProvider =>
       PhotoPickerProvider.of(context).assetProvider;
+
+  GalleryListProvider get galleryListProvider =>
+      PhotoPickerProvider.of(context).galleryListProvider;
+
+  List<AssetPathEntity> get galleryPathList => galleryListProvider.galleryPathList;
 
   List<AssetEntity> get list => assetProvider.data;
 
@@ -109,44 +117,48 @@ class _PhotoMainPageState extends State<PhotoMainPage>
       child: DefaultTextStyle(
         style: textStyle,
         child: Scaffold(
-          appBar: AppBar(
-            leading: IconButton(
-              icon: Icon(
-                Icons.close,
-                color: options.textColor,
-              ),
-              onPressed: _cancel,
-            ),
-            title: Text(
-              i18nProvider.getTitleText(options),
-              style: TextStyle(
-                color: options.textColor,
-              ),
-            ),
-            actions: <Widget>[
-              FlatButton(
-                splashColor: Colors.transparent,
-                child: Text(
-                  i18nProvider.getSureText(options, selectedCount),
-                  style: selectedCount == 0
-                      ? textStyle.copyWith(color: options.disableColor)
-                      : textStyle,
-                ),
-                onPressed: selectedCount == 0 ? null : sure,
-              ),
-            ],
-          ),
+          appBar: options.showAppBar
+              ? AppBar(
+                  leading: IconButton(
+                    icon: Icon(
+                      Icons.close,
+                      color: options.textColor,
+                    ),
+                    onPressed: _cancel,
+                  ),
+                  title: Text(
+                    i18nProvider.getTitleText(options),
+                    style: TextStyle(
+                      color: options.textColor,
+                    ),
+                  ),
+                  actions: <Widget>[
+                    FlatButton(
+                      splashColor: Colors.transparent,
+                      child: Text(
+                        i18nProvider.getSureText(options, selectedCount),
+                        style: selectedCount == 0
+                            ? textStyle.copyWith(color: options.disableColor)
+                            : textStyle,
+                      ),
+                      onPressed: selectedCount == 0 ? null : sure,
+                    ),
+                  ],
+                )
+              : null,
           body: _buildBody(),
-          bottomNavigationBar: _BottomWidget(
-            key: scaffoldKey,
-            provider: i18nProvider,
-            options: options,
-            galleryName: currentGalleryName,
-            onGalleryChange: _onGalleryChange,
-            onTapPreview: selectedList.isEmpty ? null : _onTapPreview,
-            selectedProvider: this,
-            galleryListProvider: this,
-          ),
+          bottomNavigationBar: options.showBottomBar
+              ? _BottomWidget(
+                  key: scaffoldKey,
+                  provider: i18nProvider,
+                  options: options,
+                  galleryName: currentGalleryName,
+                  onGalleryChange: _onGalleryChange,
+                  onTapPreview: selectedList.isEmpty ? null : _onTapPreview,
+                  selectedProvider: this,
+                  galleryListProvider: galleryListProvider,
+                )
+              : null,
         ),
       ),
     );
@@ -160,8 +172,31 @@ class _PhotoMainPageState extends State<PhotoMainPage>
   @override
   bool isUpperLimit() {
     var result = selectedCount == options.maxSelected;
-    if (result) _showTip(i18nProvider.getMaxTipText(options));
+//    if (result) _showTip(i18nProvider.getMaxTipText(options));
     return result;
+  }
+
+  @override
+  bool isLowerLimit() {
+    var result = selectedCount == options.minSelected;
+//    if (result) _showTip(i18nProvider.getMaxTipText(options));
+    return result;
+  }
+
+  @override
+  bool addSelectEntity(AssetEntity entity) {
+    if (isUpperLimit()) {
+      super.removeSelectEntity(selectedList.first);
+    }
+    return super.addSelectEntity(entity);
+  }
+
+  @override
+  bool removeSelectEntity(AssetEntity entity) {
+    if (isLowerLimit()) {
+      return false;
+    }
+    return super.removeSelectEntity(entity);
   }
 
   void sure() {
@@ -241,6 +276,10 @@ class _PhotoMainPageState extends State<PhotoMainPage>
       }
     }
 
+    var entity = assetProvider.data.first;
+    var currentSelected = containsEntity(entity);
+    changeCheck(!currentSelected, entity);
+
     setState(() {
       _isInit = true;
     });
@@ -262,6 +301,7 @@ class _PhotoMainPageState extends State<PhotoMainPage>
     return Container(
       color: options.dividerColor,
       child: GridView.builder(
+        padding: options.gridViewPadding,
         controller: scrollController,
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: options.rowCount,
@@ -319,17 +359,12 @@ class _PhotoMainPageState extends State<PhotoMainPage>
 
   Widget _buildSelected(AssetEntity entity) {
     var currentSelected = containsEntity(entity);
-    return Positioned(
-      right: 0.0,
-      width: 36.0,
-      height: 36.0,
-      child: GestureDetector(
-        onTap: () {
-          changeCheck(!currentSelected, entity);
-        },
-        behavior: HitTestBehavior.translucent,
-        child: _buildText(entity),
-      ),
+    return GestureDetector(
+      onTap: () {
+        changeCheck(!currentSelected, entity);
+      },
+      behavior: HitTestBehavior.translucent,
+      child: Container(),
     );
   }
 
@@ -369,8 +404,12 @@ class _PhotoMainPageState extends State<PhotoMainPage>
   void changeCheck(bool value, AssetEntity entity) {
     if (value) {
       addSelectEntity(entity);
+      options.onItemSelected(entity);
     } else {
-      removeSelectEntity(entity);
+      var wasShown =
+          indexOfSelected(entity) == indexOfSelected(selectedList.last);
+      var success = removeSelectEntity(entity);
+      if (success && wasShown) options.onItemSelected(selectedList.last);
     }
     setState(() {});
   }

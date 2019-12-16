@@ -3,9 +3,12 @@ import 'package:photo/src/delegate/badge_delegate.dart';
 import 'package:photo/src/delegate/checkbox_builder_delegate.dart';
 import 'package:photo/src/delegate/loading_delegate.dart';
 import 'package:photo/src/delegate/sort_delegate.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 class Options {
   final int rowCount;
+
+  final int minSelected;
 
   final int maxSelected;
 
@@ -33,8 +36,17 @@ class Options {
 
   final PickType pickType;
 
+  final bool showAppBar;
+
+  final bool showBottomBar;
+
+  final EdgeInsets gridViewPadding;
+
+  final Function(AssetEntity) onItemSelected;
+
   const Options({
     this.rowCount,
+    this.minSelected,
     this.maxSelected,
     this.padding,
     this.itemRadio,
@@ -48,6 +60,10 @@ class Options {
     this.loadingDelegate,
     this.badgeDelegate,
     this.pickType,
+    this.showAppBar,
+    this.showBottomBar,
+    this.gridViewPadding,
+    this.onItemSelected
   });
 }
 

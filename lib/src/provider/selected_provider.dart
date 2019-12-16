@@ -16,6 +16,7 @@ abstract class SelectedProvider {
   }
 
   bool isUpperLimit();
+  bool isLowerLimit();
 
   bool addSelectEntity(AssetEntity entity) {
     if (containsEntity(entity)) {

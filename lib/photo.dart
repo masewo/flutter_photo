@@ -21,6 +21,12 @@ export 'package:photo/src/provider/i18n_provider.dart'
     show I18NCustomProvider, I18nProvider, CNProvider, ENProvider;
 export 'package:photo/src/entity/options.dart' show PickType;
 export 'package:photo/src/delegate/badge_delegate.dart';
+export 'package:photo/src/provider/config_provider.dart';
+export 'package:photo/src/ui/page/photo_main_page.dart';
+export 'package:photo/src/entity/options.dart';
+export 'package:photo/src/ui/dialog/change_gallery_dialog.dart';
+export 'package:photo/src/provider/gallery_list_provider.dart';
+export 'package:photo/src/provider/asset_provider.dart';
 
 class PhotoPicker {
   static PhotoPicker _instance;
