@@ -58,4 +58,10 @@ abstract class SelectedProvider {
       return notExistsList.contains(e);
     });
   }
+
+  addPickedAsset(List<AssetEntity> list) {
+    for (final entity in list) {
+      addSelectEntity(entity);
+    }
+  }
 }
