@@ -11,6 +11,7 @@ class PhotoPickerProvider extends InheritedWidget {
   final AssetProvider assetProvider;
   final GalleryListProvider galleryListProvider;
   final List<AssetEntity> pickedAssetList;
+  final List<AssetEntity> pickedAssetList;
   PhotoPickerProvider({
     @required this.options,
     @required this.provider,
