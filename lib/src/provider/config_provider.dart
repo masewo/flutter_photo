@@ -17,7 +17,7 @@ class PhotoPickerProvider extends InheritedWidget {
     @required this.assetProvider,
     @required this.galleryListProvider,
     @required Widget child,
-    this.pickedAssetList,
+    this.pickedAssetList = const [],
     Key key,
   }) : super(key: key, child: child);
 
