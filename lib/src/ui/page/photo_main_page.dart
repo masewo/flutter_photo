@@ -443,6 +443,8 @@ class _PhotoMainPageState extends State<PhotoMainPage> with SelectedProvider, Au
           return PhotoPickerProvider(
             provider: PhotoPickerProvider.of(context).provider,
             options: options,
+            assetProvider: null, // not used here
+            galleryListProvider: null, // not used here
             child: PhotoPreviewPage(
               selectedProvider: this,
               list: List.of(list),
@@ -473,6 +475,8 @@ class _PhotoMainPageState extends State<PhotoMainPage> with SelectedProvider, Au
         builder: (ctx) => PhotoPickerProvider(
           provider: PhotoPickerProvider.of(context).provider,
           options: options,
+          assetProvider: null, // not used here
+          galleryListProvider: null, // not used here
           child: PhotoPreviewPage(
             selectedProvider: this,
             list: List.of(selectedList),

@@ -26,6 +26,8 @@ class PhotoApp extends StatelessWidget {
       provider: provider,
       options: options,
       pickedAssetList: pickedAssetList,
+      assetProvider: null, // not used here
+      galleryListProvider: null, // not used here
       child: PhotoMainPage(
         onClose: (List<AssetEntity> value) {
           Navigator.pop(context, value);
